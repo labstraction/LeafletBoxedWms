@@ -1,0 +1,11 @@
+{
+    "name": "leaflet-boxed-wms",
+    "version": "0.1.0",
+    "description": "A Leaflet WMS layer that restricts tile loading and rendering to a fixed bounding box",
+    "main": "L.BoxedWMS.js",
+    "keywords": [
+        "leaflet"
+    ],
+    "license": "ISC",
+    "author": "labstraction"
+}

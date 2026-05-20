@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boxed WMS + TimeDimension Demo</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Leaflet.TimeDimension CSS -->
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.min.css" />
+
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body,
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src=" https://cdn.jsdelivr.net/npm/leaflet-velocity@2.1.4/dist/leaflet-velocity.min.js "></script>
+  <link href=" https://cdn.jsdelivr.net/npm/leaflet-velocity@2.1.4/dist/leaflet-velocity.min.css " rel="stylesheet">
+
+  <script src="https://unpkg.com/iso8601-js-period@0.2.1/iso8601.js"></script>
+  <script src="https://unpkg.com/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js"></script>
+  <script src="./L.BoxedWMS.js"></script>
+
+  <script>
+
+
+    const fixedBBox = L.latLngBounds([
+      [38, 10],
+      [44, 16],
+    ]);
+
+    var map = L.map("map", {
+      timeDimension: true,
+      timeDimensionControl: true,
+    }).setView([40.5, 13.0], 6);
+
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution: "©OpenStreetMap, ©CartoDB",
+      },
+    ).addTo(map);
+
+    L.rectangle(fixedBBox, {
+      color: "#ff7800",
+      weight: 3,
+      fill: false,
+      dashArray: "10, 10",
+    }).addTo(map);
+
+    var nasaWmsUrl = "https://aspim.s4oceandata.eu/ncWMS/wms";
+
+    var boxedWmsLayer = L.boxedWms(nasaWmsUrl, {
+      layers: "cmems_mod_med_phy-sal_anfc_4_2km_P1D-m_so/so",
+      format: "image/png",
+      transparent: true,
+      bounds: fixedBBox,
+    });
+
+    var tdLayer = L.timeDimension.layer.wms(boxedWmsLayer, {
+      updateTimeDimension: true,
+      requestTimeFromCapabilities: true,
+    });
+
+
+    tdLayer.addTo(map);
+
+    fetch("./pippo.json")
+      .then(response => response.json())
+      .then(data => {
+
+        var velocityLayer = L.velocityLayer({
+          displayValues: true,
+          displayOptions: {
+            displayPosition: 'bottomleft',
+            displayEmptyString: 'No wind data'
+          },
+          data: data,
+          maxVelocity: 20
+        });
+
+        velocityLayer.addTo(map)
+      });
+  </script>
+</body>
+
+</html>
